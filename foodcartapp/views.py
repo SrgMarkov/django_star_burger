@@ -1,8 +1,10 @@
+import json
+from pprint import pprint
+
 from django.http import JsonResponse
 from django.templatetags.static import static
 
-
-from .models import Product
+from .models import Product, Customer, Order
 
 
 def banners_list_api(request):
@@ -58,5 +60,13 @@ def product_list_api(request):
 
 
 def register_order(request):
-    # TODO это лишь заглушка
+    order = json.loads(request.body.decode())
+    customer, create = Customer.objects.get_or_create(
+                                        first_name=order['firstname'],
+                                        last_name=order['lastname'],
+                                        phone=order['phonenumber'],
+                                        address=order['address'])
+    for product in order['products']:
+        Order.objects.create(customer=customer, product=Product.objects.get(id=product['product']), count=product['quantity'])
     return JsonResponse({})
+
