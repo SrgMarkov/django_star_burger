@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -61,6 +62,15 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     order = request.data
+    product_error_content = {'error': 'products are non presented or not list'}
+    try:
+        product_check = isinstance(order['products'], list)
+        if not product_check or len(order['products']) == 0:
+            return Response(product_error_content,
+                            status=status.HTTP_404_NOT_FOUND)
+    except KeyError:
+        return Response(product_error_content,
+                        status=status.HTTP_404_NOT_FOUND)
     customer = Customer.objects.create(
                             first_name=order['firstname'],
                             last_name=order['lastname'],
