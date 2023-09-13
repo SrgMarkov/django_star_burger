@@ -1,8 +1,7 @@
-import json
-from pprint import pprint
-
 from django.http import JsonResponse
 from django.templatetags.static import static
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from .models import Product, Customer, Order
 
@@ -59,14 +58,17 @@ def product_list_api(request):
     })
 
 
+@api_view(['POST'])
 def register_order(request):
-    order = json.loads(request.body.decode())
-    customer, create = Customer.objects.get_or_create(
-                                        first_name=order['firstname'],
-                                        last_name=order['lastname'],
-                                        phone=order['phonenumber'],
-                                        address=order['address'])
+    order = request.data
+    customer = Customer.objects.create(
+                            first_name=order['firstname'],
+                            last_name=order['lastname'],
+                            phone=order['phonenumber'],
+                            address=order['address'])
     for product in order['products']:
-        Order.objects.create(customer=customer, product=Product.objects.get(id=product['product']), count=product['quantity'])
-    return JsonResponse({})
-
+        Order.objects.create(customer=customer,
+                             product=Product.objects.get(id=product
+                                                         ['product']),
+                             count=product['quantity'])
+    return Response({})
