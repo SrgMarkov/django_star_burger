@@ -1,10 +1,26 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
-from rest_framework import status
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 
 from .models import Product, Customer, Order
+
+
+class OrderSerializer(ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['product', 'quantity']
+
+
+class CustomerSerializer(ModelSerializer):
+    products = OrderSerializer(many=True, allow_empty=False)
+
+    class Meta:
+        model = Customer
+        fields = ['firstname', 'lastname', 'phonenumber', 'address',
+                  'products']
 
 
 def banners_list_api(request):
@@ -61,24 +77,19 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    order = request.data
-    product_error_content = {'error': 'products are non presented or not list'}
-    try:
-        product_check = isinstance(order['products'], list)
-        if not product_check or len(order['products']) == 0:
-            return Response(product_error_content,
-                            status=status.HTTP_404_NOT_FOUND)
-    except KeyError:
-        return Response(product_error_content,
-                        status=status.HTTP_404_NOT_FOUND)
+    print(repr(CustomerSerializer()))
+    serializer = CustomerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
     customer = Customer.objects.create(
-                            first_name=order['firstname'],
-                            last_name=order['lastname'],
-                            phone=order['phonenumber'],
-                            address=order['address'])
-    for product in order['products']:
+                        firstname=serializer.validated_data['firstname'],
+                        lastname=serializer.validated_data['lastname'],
+                        phonenumber=serializer.validated_data['phonenumber'],
+                        address=serializer.validated_data['address'])
+    for product in serializer.validated_data['products']:
         Order.objects.create(customer=customer,
-                             product=Product.objects.get(id=product
-                                                         ['product']),
-                             count=product['quantity'])
+                             product=serializer.validated_data['products'][0]
+                             ['product'],
+                             quantity=serializer.validated_data['products'][0]
+                             ['quantity'])
     return Response({})

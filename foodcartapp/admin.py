@@ -48,7 +48,8 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
     ]
     search_fields = [
-        # FIXME SQLite can not convert letter case for cyrillic words properly, so search will be buggy.
+        # FIXME SQLite can not convert letter case for cyrillic words properly,
+        # so search will be buggy.
         # Migration to PostgreSQL is necessary
         'name',
         'category__name',
@@ -116,7 +117,7 @@ class OrderInline(admin.TabularInline):
 
 @admin.register(Customer)
 class Customer(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name', 'address']
+    list_display = ['firstname', 'lastname', 'address']
     inlines = [
         OrderInline
     ]

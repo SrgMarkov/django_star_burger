@@ -129,12 +129,12 @@ class Order(models.Model):
     customer = models.ForeignKey('Customer',
                                  verbose_name='Заказчик',
                                  related_name='order',
-                                 on_delete=models.DO_NOTHING)
+                                 on_delete=models.CASCADE)
     product = models.ForeignKey('Product',
                                 verbose_name='Товар',
                                 related_name='in_order',
-                                on_delete=models.DO_NOTHING)
-    count = models.PositiveIntegerField(verbose_name='Количество')
+                                on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(verbose_name='Количество')
 
     class Meta:
         verbose_name = 'Состав заказа'
@@ -142,14 +142,12 @@ class Order(models.Model):
 
 
 class Customer(models.Model):
-    first_name = models.CharField(verbose_name='Имя',
-                                  max_length=30)
-    last_name = models.CharField(verbose_name='Фамилия',
+    firstname = models.CharField(verbose_name='Имя',
                                  max_length=30)
-    phone = PhoneNumberField(verbose_name='телефон',
-                             blank=True)
+    lastname = models.CharField(verbose_name='Фамилия',
+                                max_length=30)
+    phonenumber = PhoneNumberField(verbose_name='телефон')
     address = models.CharField(verbose_name='Адрес',
-                               blank=True,
                                max_length=200)
 
     class Meta:
@@ -157,4 +155,4 @@ class Customer(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name} - {self.address}'
+        return f'{self.firstname} {self.lastname} - {self.address}'
