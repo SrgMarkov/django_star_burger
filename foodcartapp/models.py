@@ -125,6 +125,16 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
+class PriceQuerySet(models.QuerySet):
+    def calculate_price(self):
+        positions = Order.objects.filter(customer=self).\
+                                        prefetch_related('product')
+        price = 0
+        for position in positions:
+            price += (int(position.product.price) * position.quantity)
+        return self.annotate(price=price)
+
+
 class Order(models.Model):
     customer = models.ForeignKey('Customer',
                                  verbose_name='Заказчик',
@@ -149,6 +159,7 @@ class Customer(models.Model):
     phonenumber = PhoneNumberField(verbose_name='телефон')
     address = models.CharField(verbose_name='Адрес',
                                max_length=200)
+    objects = PriceQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Заказ'

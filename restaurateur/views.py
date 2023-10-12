@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Customer
+from foodcartapp.models import Product, Restaurant, Customer, Order
 
 
 class Login(forms.Form):
@@ -97,7 +97,13 @@ def view_restaurants(request):
 def view_orders(request):
     orders = []
     for customer in Customer.objects.all():
+        positions = Order.objects.filter(customer=customer).\
+                                    prefetch_related('product')
+        price = 0
+        for position in positions:
+            price += (int(position.product.price) * position.quantity)
         order = {'id': customer.id,
+                 'price': price,
                  'customer': f'{customer.firstname} {customer.lastname}',
                  'phone': customer.phonenumber,
                  'address': customer.address}
