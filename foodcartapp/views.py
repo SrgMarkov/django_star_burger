@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
 
@@ -11,7 +12,7 @@ from .models import Product, Customer, Order
 class OrderSerializer(ModelSerializer):
     class Meta:
         model = Order
-        fields = ['product', 'quantity', 'price']
+        fields = ['product', 'quantity']
 
 
 class CustomerSerializer(ModelSerializer):
@@ -81,17 +82,17 @@ def register_order(request):
     serializer.is_valid(raise_exception=True)
     if not serializer.is_valid:
         return Response(serializer.errors, status=400)
+    with transaction.atomic():
+        customer = Customer.objects.create(
+                            firstname=serializer.validated_data['firstname'],
+                            lastname=serializer.validated_data['lastname'],
+                            phonenumber=serializer.validated_data['phonenumber'],
+                            address=serializer.validated_data['address'])
+        for product in serializer.validated_data['products']:
+            price = Product.objects.get(name=product['product']).price * product['quantity'] / 0
+            Order.objects.create(customer=customer,
+                                 product=product['product'],
+                                 quantity=product['quantity'],
+                                 price=price)
 
-    customer = Customer.objects.create(
-                        firstname=serializer.validated_data['firstname'],
-                        lastname=serializer.validated_data['lastname'],
-                        phonenumber=serializer.validated_data['phonenumber'],
-                        address=serializer.validated_data['address'])
-    for product in serializer.validated_data['products']:
-        price = Product.objects.get(name=product['product']).price * product['quantity']
-        Order.objects.create(customer=customer,
-                             product=product['product'],
-                             quantity=product['quantity'],
-                             price=price)
-
-    return Response({'id': customer.id} | serializer.data, status=201)
+        return Response({'id': customer.id} | serializer.data, status=201)
