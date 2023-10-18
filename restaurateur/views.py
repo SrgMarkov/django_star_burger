@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Sum
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
@@ -95,19 +96,11 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = []
-    for customer in Customer.objects.all():
-        positions = Order.objects.filter(customer=customer).\
-                                    prefetch_related('product')
-        price = 0
-        for position in positions:
-            price += (int(position.product.price) * position.quantity)
-        order = {'id': customer.id,
-                 'price': price,
-                 'customer': f'{customer.firstname} {customer.lastname}',
-                 'phone': customer.phonenumber,
-                 'address': customer.address}
-        orders.append(order)
+    orders = [{'id': customer.id,
+               'price': customer.price,
+               'customer': f'{customer.firstname} {customer.lastname}',
+               'phone': customer.phonenumber,
+               'address': customer.address} for customer in Customer.objects.calculate_price()]
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,

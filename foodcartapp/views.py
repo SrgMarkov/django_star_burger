@@ -11,7 +11,7 @@ from .models import Product, Customer, Order
 class OrderSerializer(ModelSerializer):
     class Meta:
         model = Order
-        fields = ['product', 'quantity']
+        fields = ['product', 'quantity', 'price']
 
 
 class CustomerSerializer(ModelSerializer):
@@ -79,7 +79,6 @@ def product_list_api(request):
 def register_order(request):
     serializer = CustomerSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    print(serializer.data)
     if not serializer.is_valid:
         return Response(serializer.errors, status=400)
 
@@ -89,8 +88,10 @@ def register_order(request):
                         phonenumber=serializer.validated_data['phonenumber'],
                         address=serializer.validated_data['address'])
     for product in serializer.validated_data['products']:
+        price = Product.objects.get(name=product['product']).price * product['quantity']
         Order.objects.create(customer=customer,
                              product=product['product'],
-                             quantity=product['quantity'])
+                             quantity=product['quantity'],
+                             price=price)
 
     return Response({'id': customer.id} | serializer.data, status=201)
