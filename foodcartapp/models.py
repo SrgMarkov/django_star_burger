@@ -168,6 +168,10 @@ class Order(models.Model):
         ('DELIVERY', 'Доставка'),
         ('READY', 'Исполнен'),
     ]
+    PAYMENT_METHODS = [
+        ('OFFLINE', 'Оплата курьеру'),
+        ('ONLINE', 'Оплачен на сайте')
+    ]
     status = models.CharField(
         'Статус заказа',
         max_length=10,
@@ -209,6 +213,13 @@ class Order(models.Model):
         'Время доставки заказа',
         blank=True,
         null=True,
+        db_index=True
+    )
+    payment_method = models.CharField(
+        'Способ оплаты',
+        max_length=20,
+        choices=PAYMENT_METHODS,
+        default='OFFLINE',
         db_index=True
     )
     objects = PriceQuerySet.as_manager()
