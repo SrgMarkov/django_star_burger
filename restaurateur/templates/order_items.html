@@ -14,6 +14,7 @@
    <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
+      <th>Статус заказа</th>
       <th>Стоимость заказа</th>
       <th>Клиент</th>
       <th>Телефон</th>
@@ -22,14 +23,17 @@
     </tr>
 
     {% for item in order_items %}
-      <tr>
-        <td>{{ item.id }}</td>
-        <td>{{ item.price }}</td>
-        <td>{{ item.customer }}</td>
-        <td>{{ item.phone }}</td>
-        <td>{{ item.address }}</td>
-        <td><a href="{% url "admin:foodcartapp_customer_change"	object_id=item.id %}?next={{ request.path|urlencode }}">Редактировать</td>
-      </tr>
+      {% if item.show %}
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.status_display }}</td>
+          <td>{{ item.price }}</td>
+          <td>{{ item.customer }}</td>
+          <td>{{ item.phone }}</td>
+          <td>{{ item.address }}</td>
+          <td><a href="{% url "admin:foodcartapp_customer_change"	object_id=item.id %}?next={{ request.path|urlencode }}">Редактировать</td>
+        </tr>
+      {% endif %}
     {% endfor %}
    </table>
   </div>

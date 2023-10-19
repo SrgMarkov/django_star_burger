@@ -97,6 +97,8 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = [{'id': customer.id,
+               'show': False if customer.order_status == 'READY' else True,
+               'status_display': customer.get_order_status_display(),
                'price': customer.price,
                'customer': f'{customer.firstname} {customer.lastname}',
                'phone': customer.phonenumber,

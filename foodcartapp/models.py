@@ -151,6 +151,16 @@ class Order(models.Model):
 
 
 class Customer(models.Model):
+    ORDER_STATUS_CHOICES = [
+        ('NEW', 'Новый'),
+        ('COOK', 'Приготовление'),
+        ('DELIVERY', 'Доставка'),
+        ('READY', 'Исполнен'),
+    ]
+    order_status = models.CharField(max_length=10,
+                                    choices=ORDER_STATUS_CHOICES,
+                                    default='NEW',
+                                    db_index=True)
     firstname = models.CharField(verbose_name='Имя',
                                  max_length=30)
     lastname = models.CharField(verbose_name='Фамилия',
