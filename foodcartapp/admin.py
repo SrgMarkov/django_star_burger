@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.forms import ModelForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.templatetags.static import static

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum
 from django.core.validators import MinValueValidator
+from django.utils import timezone
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -151,7 +152,9 @@ class OrderList(models.Model):
         'Стоимость',
         max_digits=7,
         decimal_places=2,
-        validators=[MinValueValidator(0, message='Цена не может быть отрицательной')])
+        validators=[MinValueValidator(0, message='Цена не может быть отрицательной')]
+    )
+
 
     class Meta:
         verbose_name = 'Состав заказа'
@@ -190,6 +193,23 @@ class Order(models.Model):
         'Комментарий к заказу',
         max_length=400,
         blank=True,
+    )
+    registered_at = models.DateTimeField(
+        'Время регистрации заказа',
+        default=timezone.now,
+        db_index=True
+    )
+    call_at = models.DateTimeField(
+        'Время звонка клиенту',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    delivered_at = models.DateTimeField(
+        'Время доставки заказа',
+        blank=True,
+        null=True,
+        db_index=True
     )
     objects = PriceQuerySet.as_manager()
 
