@@ -6,8 +6,8 @@ from django.templatetags.static import static
 from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from .models import Customer
 from .models import Order
+from .models import OrderList
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
@@ -114,16 +114,16 @@ class ProductAdmin(admin.ModelAdmin):
     pass
 
 
-class OrderInline(admin.TabularInline):
-    model = Order
+class OrderListInline(admin.TabularInline):
+    model = OrderList
     extra = 0
 
 
-@admin.register(Customer)
-class Customer(admin.ModelAdmin):
+@admin.register(Order)
+class Order(admin.ModelAdmin):
     list_display = ['id', 'firstname', 'lastname', 'address']
     inlines = [
-        OrderInline
+        OrderListInline
     ]
 
     def response_post_save_change(self, request, obj):

@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Customer, Order
+from foodcartapp.models import Product, Restaurant, Order, OrderList
 
 
 class Login(forms.Form):
@@ -96,13 +96,15 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = [{'id': customer.id,
-               'show': False if customer.order_status == 'READY' else True,
-               'status_display': customer.get_order_status_display(),
-               'price': customer.price,
-               'customer': f'{customer.firstname} {customer.lastname}',
-               'phone': customer.phonenumber,
-               'address': customer.address} for customer in Customer.objects.calculate_price()]
+    orders = [{'id': order.id,
+               'show': False if order.status == 'READY' else True,
+               'status_display': order.get_status_display(),
+               'price': order.price,
+               'customer': f'{order.firstname} {order.lastname}',
+               'phone': order.phonenumber,
+               'address': order.address,
+               'comment': order.comment} for order in Order.objects.calculate_price()
+              ]
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,

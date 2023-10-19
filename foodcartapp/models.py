@@ -82,7 +82,7 @@ class Product(models.Model):
     )
     description = models.TextField(
         'описание',
-        max_length=200,
+        max_length=400,
         blank=True,
     )
 
@@ -128,46 +128,69 @@ class RestaurantMenuItem(models.Model):
 
 class PriceQuerySet(models.QuerySet):
     def calculate_price(self):
-        return self.annotate(price=Sum('order__price'))
+        return self.annotate(price=Sum('list__price'))
 
 
-class Order(models.Model):
-    customer = models.ForeignKey('Customer',
-                                 verbose_name='Заказчик',
-                                 related_name='order',
-                                 on_delete=models.CASCADE)
-    product = models.ForeignKey('Product',
-                                verbose_name='Товар',
-                                related_name='in_order',
-                                on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(verbose_name='Количество')
-    price = models.DecimalField(max_digits=7,
-                                decimal_places=2,
-                                validators=[MinValueValidator(0, message='Цена не может быть отрицательной')])
+class OrderList(models.Model):
+    order = models.ForeignKey(
+        'Order',
+        verbose_name='Заказ',
+        related_name='list',
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        'Product',
+        verbose_name='Товар',
+        related_name='in_order',
+        on_delete=models.CASCADE
+    )
+    quantity = models.PositiveIntegerField(
+        'Количество'
+    )
+    price = models.DecimalField(
+        'Стоимость',
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(0, message='Цена не может быть отрицательной')])
 
     class Meta:
         verbose_name = 'Состав заказа'
         verbose_name_plural = 'Состав заказа'
 
 
-class Customer(models.Model):
+class Order(models.Model):
     ORDER_STATUS_CHOICES = [
         ('NEW', 'Новый'),
         ('COOK', 'Приготовление'),
         ('DELIVERY', 'Доставка'),
         ('READY', 'Исполнен'),
     ]
-    order_status = models.CharField(max_length=10,
-                                    choices=ORDER_STATUS_CHOICES,
-                                    default='NEW',
-                                    db_index=True)
-    firstname = models.CharField(verbose_name='Имя',
-                                 max_length=30)
-    lastname = models.CharField(verbose_name='Фамилия',
-                                max_length=30)
-    phonenumber = PhoneNumberField(verbose_name='телефон')
-    address = models.CharField(verbose_name='Адрес',
-                               max_length=200)
+    status = models.CharField(
+        'Статус заказа',
+        max_length=10,
+        choices=ORDER_STATUS_CHOICES,
+        default='NEW',
+        db_index=True
+    )
+    firstname = models.CharField(
+        'Имя',
+        max_length=30
+    )
+    lastname = models.CharField(
+        'Фамилия',
+        max_length=30
+    )
+    phonenumber = PhoneNumberField(
+        'телефон'
+    )
+    address = models.CharField(
+        'Адрес',
+        max_length=200)
+    comment = models.TextField(
+        'Комментарий к заказу',
+        max_length=400,
+        blank=True,
+    )
     objects = PriceQuerySet.as_manager()
 
     class Meta:
