@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-
 from foodcartapp.models import Product, Restaurant, Order, OrderList
 
 
@@ -96,17 +95,27 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = [{'id': order.id,
-               'show': False if order.status == 'READY' else True,
-               'status_display': order.get_status_display(),
-               'payment_method': order.get_payment_method_display(),
-               'price': order.price,
-               'customer': f'{order.firstname} {order.lastname}',
-               'phone': order.phonenumber,
-               'address': order.address,
-               'comment': order.comment} for order in Order.objects.calculate_price()
-              ]
-
+    orders = []
+    for order in Order.objects.calculate_price():
+        restaurants_with_products = []
+        for position in order.list.all():
+            restaurants_with_products.append(set(menu_item.restaurant
+                                                 for menu_item in position.product.menu_items.all()
+                                                 if menu_item.availability))
+        available = set.intersection(*restaurants_with_products)
+        available_restaurants = [restaurant.name for restaurant in available]
+        order_details = {'id': order.id,
+                         'show': False if order.status == 'READY' else True,
+                         'status_display': order.get_status_display(),
+                         'payment_method': order.get_payment_method_display(),
+                         'price': order.price,
+                         'customer': f'{order.firstname} {order.lastname}',
+                         'phone': order.phonenumber,
+                         'address': order.address,
+                         'comment': order.comment,
+                         'available_restaurants': available_restaurants,
+                         'cooking_restaurant': order.cooking_restaurant}
+        orders.append(order_details)
     return render(request, template_name='order_items.html', context={
         'order_items': orders,
     })

@@ -127,7 +127,7 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
-class PriceQuerySet(models.QuerySet):
+class OrderQuerySet(models.QuerySet):
     def calculate_price(self):
         return self.annotate(price=Sum('list__price'))
 
@@ -222,9 +222,18 @@ class Order(models.Model):
         default='OFFLINE',
         db_index=True
     )
-    objects = PriceQuerySet.as_manager()
+    cooking_restaurant = models.ForeignKey(
+        'Restaurant',
+        verbose_name='Какой ресторан готовит',
+        related_name='order',
+        null=True,
+        blank=True,
+        on_delete=models.DO_NOTHING
+    )
+    objects = OrderQuerySet.as_manager()
 
     class Meta:
+        ordering = ['status']
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
 
