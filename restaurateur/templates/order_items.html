@@ -49,10 +49,14 @@
             {% else %}
               <details>
                 {% if item.status_display == 'Новый' %}
-                  <summary>Заказ может быть приготовлен в:</summary>
-                  {% for restaurant in item.available_restaurants %}
-                    <li>{{ restaurant }}</li>
-                  {%  endfor %}
+                  {% if item.available_restaurants == 'Ошибка определения координат' %}
+                    <summary>Ошибка определения координат</summary>
+                  {% else %}
+                    <summary>Заказ может быть приготовлен в:</summary>
+                    {% for name, address in item.available_restaurants.items %}
+                      <li>{{ name }} - {{ address }} км.</li>
+                    {%  endfor %}
+                  {% endif %}
                 {% elif item.status_display == 'Приготовление' %}
                   <summary>Заказ готовится в:</summary>
                   {{ item.cooking_restaurant }}
