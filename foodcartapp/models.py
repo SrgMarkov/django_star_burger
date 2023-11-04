@@ -155,7 +155,6 @@ class OrderList(models.Model):
         validators=[MinValueValidator(0, message='Цена не может быть отрицательной')]
     )
 
-
     class Meta:
         verbose_name = 'Состав заказа'
         verbose_name_plural = 'Состав заказа'

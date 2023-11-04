@@ -10,11 +10,13 @@ class AddressCoordinates(models.Model):
     )
     lon = models.FloatField(
         verbose_name='Долгота',
-        null=True
+        null=True,
+        blank=True,
     )
     lat = models.FloatField(
         verbose_name='Широта',
-        null=True
+        null=True,
+        blank=True,
     )
     coordinates_date = models.DateField(
         verbose_name='Дата запроса координат',
