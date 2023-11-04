@@ -4,24 +4,9 @@ from django.templatetags.static import static
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
 from .models import Product, Order, OrderList
-
-
-class OrderListSerializer(ModelSerializer):
-    class Meta:
-        model = OrderList
-        fields = ['product', 'quantity']
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderListSerializer(many=True, allow_empty=False, write_only=True)
-
-    class Meta:
-        model = Order
-        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address',
-                  'products']
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
