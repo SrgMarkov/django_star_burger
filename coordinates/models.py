@@ -7,6 +7,7 @@ class AddressCoordinates(models.Model):
     address = models.CharField(
         verbose_name='Адрес',
         max_length=100,
+        unique=True,
     )
     lon = models.FloatField(
         verbose_name='Долгота',
