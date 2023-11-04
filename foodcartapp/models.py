@@ -169,7 +169,8 @@ class Order(models.Model):
     ]
     PAYMENT_METHODS = [
         ('OFFLINE', 'Оплата курьеру'),
-        ('ONLINE', 'Оплачен на сайте')
+        ('ONLINE', 'Оплачен на сайте'),
+        ('NOT_SET', 'Не задано')
     ]
     status = models.CharField(
         'Статус заказа',
@@ -218,7 +219,7 @@ class Order(models.Model):
         'Способ оплаты',
         max_length=20,
         choices=PAYMENT_METHODS,
-        default='OFFLINE',
+        default='NOT_SET',
         db_index=True
     )
     cooking_restaurant = models.ForeignKey(
