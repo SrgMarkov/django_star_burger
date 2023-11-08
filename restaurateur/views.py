@@ -125,7 +125,7 @@ def get_or_create_coordinates(address):
         return address.lon, address.lat
     else:
         coordinates = fetch_coordinates(yandex_api_key, address)
-        if coordinates:
+        if coordinates: #если запрос координат вернет  None - в панели менеджера отобразится ошибка определения координат
             address.lat = coordinates[0]
             address.lon = coordinates[1]
             address.coordinates_date = datetime.date.today()

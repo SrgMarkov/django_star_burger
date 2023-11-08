@@ -130,7 +130,7 @@ class Order(admin.ModelAdmin):
         if "next" in request.GET:
             manager_url = request.GET['next']
             if url_has_allowed_host_and_scheme(manager_url, allowed_hosts=ALLOWED_HOSTS):
-                return HttpResponseRedirect(manager_url)
+                return HttpResponseRedirect(manager_url) if HttpResponseRedirect(manager_url) else response
         else:
             return response
 
