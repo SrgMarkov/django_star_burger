@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.utils import timezone
 
 
 class AddressCoordinates(models.Model):
@@ -21,7 +22,7 @@ class AddressCoordinates(models.Model):
     )
     coordinates_date = models.DateField(
         verbose_name='Дата запроса координат',
-        default=datetime.date.today()
+        default=timezone.now,
     )
 
     def __str__(self):
