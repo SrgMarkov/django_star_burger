@@ -146,3 +146,4 @@ cython_debug/
 .DS_Store
 static/
 stdata.json
+.vscode/
